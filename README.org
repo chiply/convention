@@ -1,0 +1,444 @@
+* Convention
+Powered by [[https://www.docker.com/][Docker]] and presented in the GNU [[https://www.gnu.org/software/emacs/][Emacs]] text editor,
+Convention aims to offer the ability to code through a consistent
+interface in any language with no source code installed on your
+machine.
+
+
+
+Here is a brief demonstration using the postgres database engine.  I
+have keycast mode enabled, so you can see the functions I am calling in
+the modeline.
+
+- Building a postgres image and starting a container. 
+  #+ATTR_HTML: :width 800px
+  [[./gifs/build-sql-final.gif]]
+  
+- Interacting with postgres code.  Note we can execute code directly
+  in the repl, or we can send lines, regions, or entire buffers of
+  code to the repl, or to the container to be executed as a file.
+  #+ATTR_HTML: :width 800px
+  [[./gifs/exec-code-final.gif]]
+
+  Also note from the above gif that when you send code to the
+  database container as a file, you need to specify the the database you are
+  using, otherwise you will get an error!
+
+  Although knowledge of docker is not required to reap the benefits of
+  convention, it will certainly help!
+
+** What does Convention provide?
+Convention aims to endow a user with the ability to program in any
+(see caveat in the Limitations header below) language without
+requiring that user to have any source code installed on their
+machine.  By abstracting away the installation process and providing
+utilities to evaluate code, Convention allows the user to rapidly set
+up and program in any language through a consistent interface.
+
+This concept is realized by Docker and is presented in the GNU
+Emacs text editor. With Convention, the high-level workflow
+for starting to program in a new language looks like this:
+
+- Specify a programming language and, optionally, third party dependencies
+- Start a container, which is purpose built to be running the tools
+  necessary to program in that language
+- Execute code in a multitude of ways, including: 
+  - Directly in a repl that is running inside of the container
+  - In a text buffer, by sending lines, regions, or entire buffers of
+    code to either
+    - an open repl OR
+    - a container to be execute as a file
+
+** How to use convention (a tutorial)
+To provide the best explanation for how to use Convention, I will walk
+through a basic workflow for going from "I want to program in the xxx
+programming language" to evaluating code in that language (this should
+take you through the gifs at the top of this readme)
+
+Don't let the verbosity of this explanation fool you into thinking
+this is a difficult process.  These steps are designed to be very
+quick and simple. I just wanted to provide the most detailed tutorial
+possible.
+
+*** Installing Convention
+
+This package is not yet on Melpa.  To install, simply clone this
+repository and add it to your load-path.  Cloning into you .emacs.d
+directory should acheive this affect.  If not, you can do this
+explicitly with
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "/path/to/convention")
+#+END_SRC
+
+**** Dependencies
+- You need to have docker on your machine. If you are on Mac, make
+  sure it's running!
+- [[https://github.com/magnars/s.el][s]]
+- That should be it
+- 
+*** Setting up a programming language
+
+**** Creating a Convention image
+Let's say you want to program in python. Enter
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-build-image-from-search-term
+#+END_SRC
+
+and follow the prompts:
+
+- *Enter a search term*:  Simply enter a search term for the programming
+  language of interest.  In this case we enter "python".
+- *Select a base-image-name*:  The list you are seeing is the return of
+  a docker search for the search term you entered.  These are names of
+  base images.  Image names not prefixed by a user name are usually
+  official images. Here we will select "python", the official base
+  image for python.
+- *Select a tag*:  Here we select a tag.  This tag gives us information
+  about what version of python we are using, as well as the base
+  operating system.  Here we will choose "latest".
+- *Install dependencies from a requirements file?*: Here we can specify
+  third party dependencies to be installed with the image.  These
+  dependencies are specified in a file containing newline separated
+  package names.  This convenient format for specifying dependencies
+  applies for all languages that are supported by Convention. You
+  would specify dependencies for python, julia, r-base, etc... in the
+  same way.  The file can have any name you desire.  Here we will
+  choose "no", but feel free too experment with this feature.
+- *Name with image with convention/python-*: Here we name our image.
+  Note that the image name is prefixed by convention/ and the lanugage
+  name (python in this case).  This is not overrideable.  These
+  prefixes are required for the image to be discoverable by
+  Convention, and for Convention to handle the container in a
+  language-specific manner.  Here we will type 'base', giving our
+  image the full name 'convention/python-base'.
+
+After this final prompt, we can see the image being built in an
+asynchronous process.  Wait for this async process to finish, and you
+now have an image corresponding to your programming language set up. 
+
+You can enter
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-prompt-for-image
+#+END_SRC
+
+to view your Convention images.  You can see convention/python-base is
+there!
+
+FYI - You can remove Convention images by entering
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-remove-image
+#+END_SRC
+
+and selecting the image you want to remove.  We won't do this for now. 
+
+**** Starting a Convention container
+Now that we have a Convention image for python, we can start a
+container, which will allow us to work with python code.  Enter
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-start-container
+#+END_SRC
+
+and select the image of interest, here we select the image we just
+built, convention/python-base, and will follow the prompts:
+
+- *Name the container with convention-python-*: Here we provide a name
+  for our container.  Again, note the prefixes.  These are required to
+  make the container discoverable by Covnention. Here we type 'base'
+  to give the container a full name of 'convention-python-base'.
+- *Mount a code directory?*:  Here we optionally mount a directory for
+  code files.  Read more about mounts and why you may want to do this
+  [[https://docs.docker.com/storage/volumes/][here]].  We won't mount a code directory for now.
+- *Mount a data directory?**
+- *Mount a .config directory?*
+- *Set up port forwarding?*: He we set up port forwarding.  This is
+  particularly useful for Convention containers providing access to
+  database engines.  You can read more about port forwarding [[https://docs.docker.com/config/containers/container-networking/][here]].
+
+After this prompt, we can see a Container id appear in the minibuffer,
+signifying that our Convention container has been started. 
+
+You can enter 
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-prompt-for-conatiner
+#+END_SRC
+
+to view your Convention containers.  You can see
+convention-python-base is there!
+
+FYI - You can remove Convention containers by entering
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-stop-and-remove-container
+#+END_SRC
+
+and selecting the container you want to remove.  We won't do this for
+now.
+
+FYI - Running contianers eat up memory! You can stop Convention
+containers by entering
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-stop-container
+#+END_SRC
+
+and selecting the container you want to stop.  We won't do this for
+now. 
+
+You can start a stopped container by entering
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-start-a-stopped-container
+#+END_SRC
+
+and selecting the container you want to stop. 
+
+*** Working with a programming language
+Now that we now have our programming language set up, we can start
+working with python code in a variety of ways.  
+
+**** Directly in a repl:
+We can invoke a python repl by entering:
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-connect-to-container
+#+END_SRC
+
+and selecting the container we want to connect to, here
+convention-python-base, and following the prompts:
+
+- *Command to send to container*:  Convention auto-detects the language
+  a container is being used for and offers the user a set of default
+  repls through which they can interact with the container.  Every
+  container can be 'bash-ed' into.  But here, we are interested in the
+  repls that allow us to execute python code.  Let's select 'python'.
+- *Enter a name for your process buffer*:  Here we name the buffer that
+  will container our repl.  Note the prefix is the container name
+  (again required to make this repl buffer discoverable by
+  convention).  Let's type '1' to give our process buffer a full name
+  of 'convention-python-base-1'.
+
+This will start a process buffer running the python repl.  We can
+execute python code directly in this buffer! 
+
+**** Sending code in a text buffer to the repl
+We can execute code residing in a text buffer by sending it directly
+to the python repl. 
+
+To demonstrate, create a new window (ideally in the same frame as the
+repl buffer), open a python text buffer and type 'print(hello)'.  On
+another line, type 'print('world')'.
+
+Convention allows you to send code from either
+- The current line (at-point)
+- The current region
+- The entire buffer
+
+to the repl buffer.
+
+To excute code in the current line, enter 
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-exec-region-in-repl
+#+END_SRC
+
+You will be prompted for a repl target, so Convention knows where
+to execute this code.  You will only need to do this once, as
+Convention remembers the target as a local variable in the text
+buffer.  If at any time you wish to send to a different repl buffer
+target, prefix this command with C-u.
+
+Note if the region is active, this same command will send code in the
+current region. 
+
+To execute code in the entire buffer, enter
+
+#+BEGIN_SRC emacs-lisp
+M-x convnetion-execute-buffer-in-repl
+#+END_SRC
+
+**** Executing code in a text buffer in the container as a file.
+Again, code in the line, active region, or entire buffer can be
+executed in this fashion.  
+
+To execute the current line as a file, enter
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-execute-region-as-file
+#+END_SRC
+
+You will be prompted for a container target, so Convention knows where
+to execute this code.  You will only need to do this once, as
+Convention remembers the target as a local variable in the text
+buffer.  If at any time you wish to send to a different container
+target, prefix this command with C-u.
+
+Note if the region is active, this same command will execute code in the
+current region. 
+
+To execute code in the entire buffer, enter
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-execute-buffer-as-file
+#+END_SRC
+
+Of note, code executed in this fashion (ie as a file) will execute as
+an asynhronous process. 
+
+*** Differences for database containers
+For containers running database containers, the process is the same,
+but the prompts are slightly different. To clear up potential
+confusion, I will explain those differences:
+
+- When starting a container, the user will need to specify port
+  forwarding.  As a guide, I recommend the following port forwarding
+  for the following database engines (these are simply the defaults)
+  - db - local:remote
+  - postgres - 5432:5432
+  - mysql - 3306:3306
+  - mariadb - 3306:3306
+  - mssql - 1433:1433
+
+- When connecting to a container or sending code to a container to be
+  executed as a file, Convention needs to be aware of certain
+  parameters which are required by database connection strings.
+  Accordingly, you will be prompted for:
+  - Database port
+  - Password
+
+Convention remembers this data as local variables, so you will only
+need to do this once. 
+
+As with non-db containers, you can pass the prefix argument when
+sending code to connect to a different target repl or container.  In
+that situation, you will again be prompted for the port and password. 
+
+
+*** Recommended keybindings
+I recommend binding all functions discussed so far to make your
+experience more smooth.  For creating and interacting with images /
+containers, use hydra (and I think you should too! [[https://github.com/abo-abo/hydra][Hydra]]):
+
+#+BEGIN_SRC emacs-lisp
+  (defhydra hydra-convention (:color red)
+    ("li" convention-prompt-for-image "list images" :exit t)
+    ("i" convention-build-image-from-preset "build from preset" :exit t)
+    ("I" convention-build-image-from-search-term "build from search" :exit t)
+    ("lrc" convention-prompt-for-running-container "list running containers" :exit t)
+    ("lsc" convention-prompt-for-stopped-container "list stopped containers" :exit t)
+    ("lac" convention-prompt-for-all-container "list all containers" :exit t)
+    ("C" convention-start-container "start container" :exit t)
+    ("ri" convention-remove-image "remove image" :exit t)
+    ("rc" convention-stop-and-remove-container "remove container" :exit t)
+    ("s" convention-stop-container "stop container" :exit t)
+    ("S" convention-start-a-stopped-container "start container" :exit t)
+    ("d" convention-connect-to-container "connect" :exit t))
+#+END_SRC
+
+For sending code to repl buffers / containers to be executed as files,
+I use the following top-level keybindings (note I use general.el to
+set this up [[https://github.com/noctuid/general.el][General]]):
+
+#+BEGIN_SRC emacs-lisp
+  ;; note I am using evil
+  (general-define-key
+   :states '(normal visual)
+   :keymaps '(python-mode-map
+              js2-mode-map
+              ruby-mode-map
+              go-mode-map
+              scala-mode-map
+              ess-r-mode-map
+              ess-r-help-mode-map
+              sql-mode-map
+              sql-interactive-mode-map
+              julia-mode-map)
+   "<return>" 'convention-exec-region-in-repl
+   "<S-return>" 'convention-exec-buffer-in-repl
+   "<C-return>" 'convention-exec-region-as-file
+   "<C-S-return>" 'convention-exec-buffer-as-file)
+#+END_SRC
+
+** Limitations
+Currenlty, convention only (fully) supports the following languages:
+- python
+- r-base (R)
+- julia
+- node
+- golang
+- ruby
+- mssql
+- postgres
+- mysql
+- mariadb
+
+What's more, Convention builds images in such a way that currently
+supports only debian base operating systems.  Generally, for any of
+these languages, if you select the 'latest' tag, you shouldn't have
+any problems.  That being said, Convention /should/ work with other
+tags, as long as they indicate debian operating systems. 
+
+If you want to set up a programming language from a list of languages
+known to be supported by convention, you can enter:
+
+#+BEGIN_SRC emacs-lisp
+M-x convention-build-image-from-preset
+#+END_SRC
+
+and select a language from the list.  This also gives you an idea of
+what search term to use to search for a programming language (ie the
+non-obvious 'r-base' search term to search for R containers)
+
+
+** Next steps / seeking collaboration on
+Convention is currently in its infancy.  As mentioned above, it
+currently has limited supported for the full babel of programming
+languages.  The primary initiative going forward is building in support
+for the following languages:
+- C
+- C++
+- Rust
+- Scala
+- Java
+- Clojure
+- Haskell
+- etc...
+
+As mentioned in the introduction, Convention /aims/ to allow a user to
+program in /any/ programming language.  This goal requires support for
+as many programming languages as possible. I am a data scientist, so
+rolling support for languages is biased towards data-science centric
+languages.  I personally don't have a lot of experience with compiled
+lanugages or jit-compiled languages, so there will be a learning curve
+for me when it comes to those kinds of languages. Any collaboration is
+massivley appreciated :-)
+
+I also hope to build more features into Convention.  To name a few:
+- integration with org-babel
+- integration with lsp:  Convention currently does not offer
+  intellisense or other lsp-features.  A lame work around for this
+  would be for the user to install lsp servers and any necessary
+  source code on their computer (although this defeats the purpose of
+  Convention!).  In that sense, I want to build in support for using
+  lsp servers from containers that are connected to text buffers.  In
+  this way, the user could get IDE features for a language without
+  having to have source code installed on their machine.  I'm not sure
+  if this is possible.  Again - any collaboration is appreciated!
+- Allow user-specified custom directory structures for the convention images
+- Leverage multi stage builds to keep the convention containers as
+  lean as possible
+- Allow for linking of containers, ie linking of a python container
+  to a postgres container
+- Convenient inspection of docker container properties and logs
+- Allow user to specify their own completion framework for prompts
+- Build in a more convenient interface using transient (seems to be
+  all the rage these days!)
+
+I am seeking collaborators on this project!  Please feel free to
+submit issues / fork / submit pull requests / reach out to me via
+email (mister.chiply@gmail.com)
