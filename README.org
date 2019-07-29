@@ -1,8 +1,8 @@
 * Convention
 Powered by [[https://www.docker.com/][Docker]] and presented in the GNU [[https://www.gnu.org/software/emacs/][Emacs]] text editor,
 Convention aims to offer the ability to code through a consistent
-interface in any language with no source code installed on your
-machine.
+interface in any language with no interpreters or compilers installed
+on your machine.
 
 
 
@@ -30,10 +30,11 @@ the modeline.
 ** What does Convention provide?
 Convention aims to endow a user with the ability to program in any
 (see caveat in the Limitations header below) language without
-requiring that user to have any source code installed on their
-machine.  By abstracting away the installation process and providing
-utilities to evaluate code, Convention allows the user to rapidly set
-up and program in any language through a consistent interface.
+requiring that user to have any interpreters or compilers installed on
+their machine.  By abstracting away the installation process and
+providing utilities to evaluate code, Convention allows the user to
+rapidly set up and program in any language through a consistent
+interface.
 
 This concept is realized by Docker and is presented in the GNU
 Emacs text editor. With Convention, the high-level workflow
@@ -76,7 +77,6 @@ explicitly with
   sure it's running!
 - [[https://github.com/magnars/s.el][s]]
 - That should be it
-- 
 *** Setting up a programming language
 
 **** Creating a Convention image
@@ -420,15 +420,16 @@ massivley appreciated :-)
 
 I also hope to build more features into Convention.  To name a few:
 - integration with org-babel
-- integration with lsp:  Convention currently does not offer
+- integration with lsp: Convention currently does not offer
   intellisense or other lsp-features.  A lame work around for this
   would be for the user to install lsp servers and any necessary
-  source code on their computer (although this defeats the purpose of
-  Convention!).  In that sense, I want to build in support for using
-  lsp servers from containers that are connected to text buffers.  In
-  this way, the user could get IDE features for a language without
-  having to have source code installed on their machine.  I'm not sure
-  if this is possible.  Again - any collaboration is appreciated!
+  interpreters or compilers on their computer (although this defeats
+  the purpose of Convention!).  In that sense, I want to build in
+  support for using lsp servers from containers that are connected to
+  text buffers.  In this way, the user could get IDE features for a
+  language without having to have interpreters or compilers installed
+  on their machine.  I'm not sure if this is possible.  Again - any
+  collaboration is appreciated!
 - Allow user-specified custom directory structures for the convention images
 - Leverage multi stage builds to keep the convention containers as
   lean as possible
