@@ -42,7 +42,7 @@
                               (not (process-live-p (get-buffer-process convention-repl-target))))
                           (convention-prompt-for-repl-buffer)
                         (message convention-repl-target))))
-    (setq-local convention-repl-target repl-target))))
+    (setq-local convention-repl-target repl-target)))
 
 
 
