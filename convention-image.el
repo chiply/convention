@@ -139,7 +139,7 @@
    running a database engine with the appropriate DBCLI-PROGRAM"
   (let ((req-layer (convention-get-layer-req base-image-name-and-tag))
         (dbcli-program (convention-query-lang-info base-image-name-and-tag "dbcli-program")))
-  (s-format req-layer 'aget `(("dbcli-program" . ,dbcli-program)))))
+    (s-format req-layer 'aget `(("dbcli-program" . ,dbcli-program)))))
 
 
 (defun convention-format-layer-req-lang (base-image-name-and-tag)
@@ -150,10 +150,10 @@
         (install-script (convention-query-install-info base-image-name-and-tag "install-script"))
         (requirements (convention-format-reqs-list base-image-name-and-tag))
         (cmd-line-util (convention-query-install-info base-image-name-and-tag "cmd-line-util")))
-  (if (> (length requirements) 0) (s-format req-layer 'aget `(("install-script" . ,install-script)
-                              ("requirements" . ,requirements)
-                              ("cmd-line-util" . ,cmd-line-util)))
-    "")))
+    (if (> (length requirements) 0) (s-format req-layer 'aget `(("install-script" . ,install-script)
+                                                                ("requirements" . ,requirements)
+                                                                ("cmd-line-util" . ,cmd-line-util)))
+      "")))
 
 
 
