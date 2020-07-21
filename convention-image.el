@@ -82,15 +82,21 @@
    is essential to make the image discoverable by convention and to
    ensure the image is being processed properly based on language
    downstream"
-  (let ((lang (convention-guess-lang-from-image-or-container-name base-image-name)))
-   (ido-completing-read (concat "Name the image with convention/" lang "-") ())))
+  (let ((lang (if (convention-guess-lang-from-image-or-container-name base-image-name)
+                  (convention-guess-lang-from-image-or-container-name base-image-name)
+                (message base-image-name)
+                )))
+    (ido-completing-read (concat "Name the image with convention/" lang "-") ())))
 
 
 (defun convention-format-user-image-name (base-image-name)
   "Returns a string representing an image name based on user input. Note the presence of
    'convention' and LANG are required to be in the name in order for the image to be
    discoverable by convention"
-  (let ((lang (convention-guess-lang-from-image-or-container-name base-image-name))
+  (let ((lang (if (convention-guess-lang-from-image-or-container-name base-image-name)
+                  (convention-guess-lang-from-image-or-container-name base-image-name)
+                (message base-image-name)
+                ))
         (user-image-postfix (convention-prompt-for-user-image-postfix base-image-name)))
     (s-format convention-docker-user-image-name
               'aget `(("lang" . ,lang)
